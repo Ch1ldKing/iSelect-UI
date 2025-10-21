@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Typography } from 'antd';
-import { UserOutlined, LockOutlined, IdcardOutlined } from '@ant-design/icons';
+import { MailOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import AuthLayout from '../../layouts/AuthLayout';
@@ -39,28 +39,15 @@ const Login: React.FC = () => {
           size="large"
         >
           <Form.Item
-            name="client_id"
+            name="email"
             rules={[
-              { required: true, message: '请输入 Client ID' },
-              { whitespace: true, message: 'Client ID 不能为空' }
+              { required: true, message: '请输入邮箱' },
+              { type: 'email', message: '请输入有效的邮箱地址' }
             ]}
           >
             <Input
-              prefix={<IdcardOutlined style={{ color: '#52c41a' }} />}
-              placeholder="Client ID"
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="username"
-            rules={[
-              { required: true, message: '请输入用户名' },
-              { whitespace: true, message: '用户名不能为空' }
-            ]}
-          >
-            <Input
-              prefix={<UserOutlined style={{ color: '#52c41a' }} />}
-              placeholder="用户名"
+              prefix={<MailOutlined style={{ color: '#52c41a' }} />}
+              placeholder="邮箱"
             />
           </Form.Item>
 

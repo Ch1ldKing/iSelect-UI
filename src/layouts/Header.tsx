@@ -9,7 +9,7 @@ const { Text } = Typography;
 
 const Header = () => {
   const navigate = useNavigate();
-  const { username, logout } = useAuthStore();
+  const { displayName, logout } = useAuthStore();
 
   const handleLogout = () => {
     logout();
@@ -79,7 +79,7 @@ const Header = () => {
       <Dropdown menu={{ items: menuItems }} placement="bottomRight">
         <Space style={{ cursor: 'pointer' }}>
           <Avatar icon={<UserOutlined />} style={{ backgroundColor: '#52c41a' }} />
-          <Text style={{ color: '#fff' }}>{username || '用户'}</Text>
+          <Text style={{ color: '#fff' }}>{displayName || '用户'}</Text>
         </Space>
       </Dropdown>
     </AntHeader>

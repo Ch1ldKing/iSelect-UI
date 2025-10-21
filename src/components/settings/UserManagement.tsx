@@ -8,8 +8,8 @@ import { validatePassword } from '../../utils/validators';
 const UserManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [clients, setClients] = useState<any[]>([]);
   const [form] = Form.useForm();
-  const clientId = useAuthStore((state) => state.clientId);
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -20,17 +20,13 @@ const UserManagement: React.FC = () => {
     form.resetFields();
   };
 
-  const handleSubmit = async (values: { username: string; password: string }) => {
-    if (!clientId) {
-      message.error('Client ID 未找到，请重新登录');
-      return;
-    }
-
+  const handleSubmit = async (values: { client_id: string; email: string; display_name: string; password: string }) => {
     setLoading(true);
     try {
-      await clientService.registerUser({
-        client_id: clientId,
-        username: values.username,
+      await clientService.register({
+        client_id: values.client_id,
+        email: values.email,
+        display_name: values.display_name,
         password: values.password,
       });
 
@@ -39,7 +35,7 @@ const UserManagement: React.FC = () => {
       form.resetFields();
     } catch (error: any) {
       // 显示更详细的错误信息
-      const errorMessage = error?.response?.data?.message || '用户注册失败，请检查用户名是否已存在或稍后重试';
+      const errorMessage = error?.response?.data?.message || '用户注册失败，请检查邮箱是否已存在或稍后重试';
       message.error(errorMessage);
       console.error('User registration error:', error);
     } finally {
@@ -71,14 +67,25 @@ const UserManagement: React.FC = () => {
           autoComplete="off"
         >
           <Form.Item
-            label="用户名"
-            name="username"
+            label="邮箱"
+            name="email"
             rules={[
-              { required: true, message: '请输入用户名' },
-              { min: 3, message: '用户名至少3个字符' },
+              { required: true, message: '请输入邮箱' },
+              { type: 'email', message: '请输入有效的邮箱地址' },
             ]}
           >
-            <Input placeholder="请输入用户名" />
+            <Input placeholder="请输入邮箱" />
+          </Form.Item>
+
+          <Form.Item
+            label="显示名称"
+            name="display_name"
+            rules={[
+              { required: true, message: '请输入显示名称' },
+              { min: 2, message: '显示名称至少2个字符' },
+            ]}
+          >
+            <Input placeholder="请输入显示名称" />
           </Form.Item>
 
           <Form.Item

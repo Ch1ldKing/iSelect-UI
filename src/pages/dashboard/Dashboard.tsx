@@ -23,7 +23,7 @@ interface ResourceData {
 }
 
 const Dashboard: React.FC = () => {
-  const clientId = useAuthStore((state) => state.clientId);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { workers, onlineCount, availableCount, startPolling, stopPolling } =
     useWorkerStore();
   const { tasks, fetchTasks } = useTaskStore();
@@ -103,7 +103,9 @@ const Dashboard: React.FC = () => {
 
   // 启动轮询
   useEffect(() => {
-    if (!clientId) return;
+    if (!isAuthenticated) {
+      return;
+    }
 
     // 启动 Worker 轮询（5 秒）
     startPolling(5000);
@@ -127,7 +129,7 @@ const Dashboard: React.FC = () => {
       clearInterval(taskPollingInterval);
       clearTimeout(loadingTimer);
     };
-  }, [clientId, startPolling, stopPolling, fetchTasks]);
+  }, [isAuthenticated, startPolling, stopPolling, fetchTasks]);
 
   // 显示骨架屏
   if (initialLoading) {

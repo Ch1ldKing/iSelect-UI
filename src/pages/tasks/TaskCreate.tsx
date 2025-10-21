@@ -17,10 +17,7 @@ const TaskCreate: React.FC = () => {
 
   // 算法选项（根据实际后端支持的算法配置）
   const algorithmOptions = [
-    { value: 'algorithm-001', label: '逻辑回归 (Logistic Regression)' },
-    { value: 'algorithm-002', label: '线性回归 (Linear Regression)' },
-    { value: 'algorithm-003', label: '神经网络 (Neural Network)' },
-    { value: 'algorithm-004', label: 'K-均值聚类 (K-Means)' },
+    { value: 'mock', label: '模拟算法 (Mock)' }
   ];
 
   // 组件挂载时获取文件列表

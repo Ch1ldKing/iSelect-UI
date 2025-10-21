@@ -1,21 +1,41 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, Typography } from 'antd';
-import { UserOutlined, LockOutlined, BankOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Form, Input, Button, Typography, Select } from 'antd';
+import { UserOutlined, LockOutlined, MailOutlined, BankOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import { clientService } from '../../api/clientService';
 import AuthLayout from '../../layouts/AuthLayout';
-import type { RegisterClientData } from '../../types/auth';
+import type { RegisterUserData } from '../../types/auth';
+import type { Client } from '../../api/clientService';
 
 const { Title, Text } = Typography;
 
 const Register: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loadingClients, setLoadingClients] = useState(true);
   const navigate = useNavigate();
-  const registerClient = useAuthStore((state) => state.registerClient);
+  const register = useAuthStore((state) => state.register);
+
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const data = await clientService.getClients();
+        // 确保 data 是数组
+        setClients(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Failed to fetch clients:', error);
+        setClients([]);
+      } finally {
+        setLoadingClients(false);
+      }
+    };
+    fetchClients();
+  }, []);
 
   const validatePassword = (_: any, value: string) => {
     if (!value) {
-      return Promise.reject(new Promise('请输入密码'));
+      return Promise.reject(new Error('请输入密码'));
     }
     if (value.length < 8) {
       return Promise.reject(new Error('密码长度至少为 8 个字符'));
@@ -32,11 +52,10 @@ const Register: React.FC = () => {
     return Promise.resolve();
   };
 
-  const onFinish = async (values: RegisterClientData) => {
+  const onFinish = async (values: RegisterUserData) => {
     setLoading(true);
     try {
-      await registerClient(values);
-      // 注册成功后自动重定向到仪表盘
+      await register(values);
       navigate('/dashboard');
     } catch (error) {
       console.error('Registration failed:', error);
@@ -49,7 +68,7 @@ const Register: React.FC = () => {
     <AuthLayout>
       <div style={{ padding: '24px' }}>
         <Title level={3} style={{ textAlign: 'center', marginBottom: '24px', color: '#52c41a' }}>
-          公司注册
+          用户注册
         </Title>
         
         <Form
@@ -59,30 +78,49 @@ const Register: React.FC = () => {
           size="large"
         >
           <Form.Item
-            name="client_name"
+            name="client_id"
             rules={[
-              { required: true, message: '请输入公司名称' },
-              { whitespace: true, message: '公司名称不能为空' },
-              { min: 2, message: '公司名称至少 2 个字符' }
+              { required: true, message: '请选择公司' }
+            ]}
+          >
+            <Select
+              placeholder="选择公司"
+              loading={loadingClients}
+              suffixIcon={<BankOutlined style={{ color: '#52c41a' }} />}
+              notFoundContent={loadingClients ? '加载中...' : '暂无可用公司'}
+            >
+              {Array.isArray(clients) && clients.map(client => (
+                <Select.Option key={client.client_id} value={client.client_id}>
+                  {client.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="email"
+            rules={[
+              { required: true, message: '请输入邮箱' },
+              { type: 'email', message: '请输入有效的邮箱地址' }
             ]}
           >
             <Input
-              prefix={<BankOutlined style={{ color: '#52c41a' }} />}
-              placeholder="公司名称"
+              prefix={<MailOutlined style={{ color: '#52c41a' }} />}
+              placeholder="邮箱"
             />
           </Form.Item>
 
           <Form.Item
-            name="username"
+            name="display_name"
             rules={[
-              { required: true, message: '请输入管理员用户名' },
-              { whitespace: true, message: '用户名不能为空' },
-              { min: 3, message: '用户名至少 3 个字符' }
+              { required: true, message: '请输入显示名称' },
+              { whitespace: true, message: '显示名称不能为空' },
+              { min: 2, message: '显示名称至少 2 个字符' }
             ]}
           >
             <Input
               prefix={<UserOutlined style={{ color: '#52c41a' }} />}
-              placeholder="管理员用户名"
+              placeholder="显示名称"
             />
           </Form.Item>
 

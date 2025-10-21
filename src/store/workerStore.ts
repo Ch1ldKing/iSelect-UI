@@ -13,9 +13,9 @@ interface WorkerState {
   loading: boolean;
   pollingInterval: ReturnType<typeof setInterval> | null;
   fetchWorkers: () => Promise<void>;
-  fetchWorkerDetail: (clientId: string, workerId: string) => Promise<void>;
+  fetchWorkerDetail: (workerId: string) => Promise<void>;
   startPolling: (interval?: number) => void;
-  startWorkerPolling: (clientId: string, workerId: string, interval?: number) => void;
+  startWorkerPolling: (workerId: string, interval?: number) => void;
   stopPolling: () => void;
 }
 
@@ -138,7 +138,7 @@ export const useWorkerStore = create<WorkerState>((set, get) => ({
   /**
    * 启动 Worker 详情页面的轮询
    */
-  startWorkerPolling: (clientId: string, workerId: string, interval = 3000) => {
+  startWorkerPolling: (workerId: string, interval = 3000) => {
     const { stopPolling, fetchWorkerDetail } = get();
 
     // 先停止现有的轮询
@@ -148,11 +148,11 @@ export const useWorkerStore = create<WorkerState>((set, get) => ({
     set({ resourceHistory: [] });
 
     // 立即获取一次数据
-    fetchWorkerDetail(clientId, workerId);
+    fetchWorkerDetail(workerId);
 
     // 启动定时轮询
     const pollingInterval = setInterval(() => {
-      fetchWorkerDetail(clientId, workerId);
+      fetchWorkerDetail(workerId);
     }, interval);
 
     set({ pollingInterval });

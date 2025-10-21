@@ -1,23 +1,19 @@
 // 认证相关 API 服务
 import { apiClient } from './client';
 
-export interface RegisterClientData {
-  client_name: string;
-  username: string;
-  password: string;
-}
-
-export interface RegisterClientResponse {
-  success: boolean;
-  message: string;
-  token: string;
+export interface Client {
   client_id: string;
-  user_id: string;
+  name: string;
+  website?: string;
+  entity_number?: string;
+  description?: string;
+  created_at: string;
 }
 
 export interface RegisterUserData {
   client_id: string;
-  username: string;
+  email: string;
+  display_name: string;
   password: string;
 }
 
@@ -26,11 +22,11 @@ export interface RegisterUserResponse {
   message: string;
   token: string;
   user_id: string;
+  client_id: string;
 }
 
 export interface LoginCredentials {
-  client_id: string;
-  username: string;
+  email: string;
   password: string;
 }
 
@@ -38,21 +34,24 @@ export interface LoginResponse {
   success: boolean;
   message: string;
   token: string;
+  user_id: string;
+  client_id: string;
+  display_name: string;
 }
 
 export const clientService = {
   /**
-   * 注册新的公司/机构客户端
+   * 获取客户端列表
    */
-  register: async (data: RegisterClientData): Promise<RegisterClientResponse> => {
-    const response = await apiClient.post<RegisterClientResponse>('/client/register', data);
-    return response.data;
+  getClients: async (): Promise<Client[]> => {
+    const response = await apiClient.get<{ success: boolean; clients: Client[] }>('/clients');
+    return response.data.clients || [];
   },
 
   /**
-   * 在已有客户端下注册新用户
+   * 用户注册
    */
-  registerUser: async (data: RegisterUserData): Promise<RegisterUserResponse> => {
+  register: async (data: RegisterUserData): Promise<RegisterUserResponse> => {
     const response = await apiClient.post<RegisterUserResponse>('/user/register', data);
     return response.data;
   },

@@ -69,4 +69,12 @@ export const taskService = {
     const response = await apiClient.get<{ success: boolean; tasks: Task[] }>('/tasks');
     return response.data;
   },
+
+  /**
+   * 重试任务
+   */
+  retry: async (taskId: string): Promise<{ success: boolean; message: string }> => {
+    const response = await apiClient.post<{ success: boolean; message: string }>(`/tasks/${taskId}/retry`);
+    return response.data;
+  },
 };

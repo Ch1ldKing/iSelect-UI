@@ -1,12 +1,25 @@
 // API 客户端配置
 import axios from 'axios';
-import { message } from 'antd';
+import { message as antdMessage } from 'antd';
 
 // 创建 Axios 实例
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://172.24.183.190:8080/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
   timeout: 10000,
 });
+
+// 全局 message 实例（用于在拦截器中显示消息）
+let messageApi: any = null;
+
+export const setMessageApi = (api: any) => {
+  messageApi = api;
+};
+
+// 获取 message API，如果没有设置则使用静态方法
+const getMessage = () => messageApi || antdMessage;
+
+// 导出 message API 供其他模块使用
+export const getMessageApi = () => getMessage();
 
 // 请求拦截器 - 添加 Authorization header
 apiClient.interceptors.request.use(
@@ -26,6 +39,8 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    const message = getMessage();
+    
     // 处理超时错误
     if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
       message.error('请求超时，请检查网络连接后重试');
@@ -34,14 +49,22 @@ apiClient.interceptors.response.use(
 
     if (error.response) {
       // 服务器返回错误响应
-      const { status, data } = error.response;
+      const { status, data, config } = error.response;
+      
+      // 判断是否是登录或注册请求
+      const isAuthRequest = config.url?.includes('/login') || config.url?.includes('/register');
       
       switch (status) {
         case 401:
-          // 清除认证信息，重定向到登录页
-          localStorage.clear();
-          window.location.href = '/login';
-          message.error('登录已过期，请重新登录');
+          if (isAuthRequest) {
+            // 登录/注册失败，统一显示中文错误
+            message.error('邮箱或密码错误');
+          } else {
+            // token 过期，清除认证信息并重定向
+            localStorage.clear();
+            window.location.href = '/login';
+            message.error('登录已过期，请重新登录');
+          }
           break;
         case 400:
           // 显示后端返回的错误消息

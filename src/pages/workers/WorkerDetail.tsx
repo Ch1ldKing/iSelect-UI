@@ -10,23 +10,23 @@ import ResourceMonitor from '../../components/worker/ResourceMonitor';
 const WorkerDetail: React.FC = () => {
   const { id: workerId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const clientId = useAuthStore((state) => state.clientId);
+  const { isAuthenticated } = useAuthStore();
   const { currentWorker, resourceHistory, loading, startWorkerPolling, stopPolling } =
     useWorkerStore();
 
   useEffect(() => {
-    if (!clientId || !workerId) {
+    if (!isAuthenticated || !workerId) {
       return;
     }
 
     // 启动轮询，每 3 秒更新一次
-    startWorkerPolling(clientId, workerId, 3000);
+    startWorkerPolling(workerId, 3000);
 
     // 组件卸载时停止轮询
     return () => {
       stopPolling();
     };
-  }, [clientId, workerId, startWorkerPolling, stopPolling]);
+  }, [isAuthenticated, workerId, startWorkerPolling, stopPolling]);
 
   if (loading && !currentWorker) {
     return (

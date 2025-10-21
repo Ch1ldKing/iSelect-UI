@@ -11,13 +11,13 @@ const { Option } = Select;
 
 const WorkerList: React.FC = () => {
   const { workers, loading, fetchWorkers, startPolling, stopPolling } = useWorkerStore();
-  const { clientId } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    if (clientId) {
+    if (isAuthenticated) {
       // 启动 5 秒轮询
       startPolling(5000);
       
@@ -32,7 +32,7 @@ const WorkerList: React.FC = () => {
         clearTimeout(timer);
       };
     }
-  }, [clientId, startPolling, stopPolling]);
+  }, [isAuthenticated, startPolling, stopPolling]);
 
   // 过滤 Worker 列表
   const filteredWorkers: Worker[] = workers.filter((worker) => {

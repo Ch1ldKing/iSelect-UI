@@ -1,41 +1,32 @@
 // Authentication related types
 
 export interface LoginCredentials {
-  client_id: string;
-  username: string;
-  password: string;
-}
-
-export interface RegisterClientData {
-  client_name: string;
-  username: string;
+  email: string;
   password: string;
 }
 
 export interface RegisterUserData {
   client_id: string;
-  username: string;
+  email: string;
+  display_name: string;
   password: string;
 }
 
-export interface AuthResponse {
-  token: string;
+export interface Client {
   client_id: string;
-  user_id: string;
-}
-
-export interface LoginResponse {
-  token: string;
+  name: string;
+  website?: string;
+  entity_number?: string;
+  description?: string;
+  created_at: string;
 }
 
 export interface AuthState {
   token: string | null;
-  clientId: string | null;
-  userId: string | null;
-  username: string | null;
+  displayName: string | null;
   isAuthenticated: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
-  registerClient: (data: RegisterClientData) => Promise<void>;
+  register: (data: RegisterUserData) => Promise<void>;
   initAuth: () => void;
 }

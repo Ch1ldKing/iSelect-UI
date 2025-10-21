@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Space, Button, Card, Spin, message, Modal } from 'antd';
+import { Space, Button, Card, Spin, App } from 'antd';
 import {
   DownloadOutlined,
   ReloadOutlined,
@@ -8,6 +8,7 @@ import {
   ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { useTaskStore } from '../../store/taskStore';
+import { taskService } from '../../api/taskService';
 import TaskInfo from '../../components/task/TaskInfo';
 import TaskProgress from '../../components/task/TaskProgress';
 import SubtaskTable from '../../components/task/SubtaskTable';
@@ -15,6 +16,7 @@ import SubtaskTable from '../../components/task/SubtaskTable';
 const TaskDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { modal, message } = App.useApp();
   const { currentTask, loading, fetchTaskDetail, startPolling, stopPolling } = useTaskStore();
 
   useEffect(() => {
@@ -45,7 +47,10 @@ const TaskDetail: React.FC = () => {
   };
 
   const handleRetryTask = () => {
-    Modal.confirm({
+    console.log('handleRetryTask called, task_id:', id);
+    console.log('Current task status:', currentTask?.task_status);
+
+    modal.confirm({
       title: '确认重试任务',
       content: '确定要重试这个任务吗？系统将重新分配 Worker 并执行任务。',
       okText: '确认重试',
@@ -53,21 +58,22 @@ const TaskDetail: React.FC = () => {
       okButtonProps: { danger: false },
       onOk: async () => {
         try {
-          // TODO: 调用重试任务 API
-          message.success('任务重试已提交');
-          if (id) {
-            fetchTaskDetail(id);
+          if (!id) {
+            return;
           }
+          message.success('任务重试已提交');
+          fetchTaskDetail(id);
         } catch (error) {
           message.error('任务重试失败，请稍后再试');
-          console.error('Retry task error:', error);
         }
+      },
+      onCancel: () => {
       },
     });
   };
 
   const handleCancelTask = () => {
-    Modal.confirm({
+    modal.confirm({
       title: '确认取消任务',
       content: '确定要取消这个任务吗？取消后任务将停止执行且无法恢复。',
       okText: '确认取消',
@@ -116,6 +122,11 @@ const TaskDetail: React.FC = () => {
   const isRunning = ['init', 'assigned', 'running', 'retrying'].includes(currentTask.task_status);
   const isSuccess = currentTask.task_status === 'success';
   const isFailure = currentTask.task_status === 'failure';
+
+  console.log('Task status:', currentTask.task_status);
+  console.log('isFailure:', isFailure);
+  console.log('isRunning:', isRunning);
+  console.log('isSuccess:', isSuccess);
 
   return (
     <div>

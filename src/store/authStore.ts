@@ -1,54 +1,43 @@
 // 认证状态管理
 import { create } from 'zustand';
 import { clientService } from '../api/clientService';
-import type { LoginCredentials, RegisterClientData } from '../api/clientService';
-import { message } from 'antd';
+import type { LoginCredentials, RegisterUserData } from '../api/clientService';
+import { getMessageApi } from '../api/client';
 
 interface AuthState {
   token: string | null;
-  clientId: string | null;
-  userId: string | null;
-  username: string | null;
+  displayName: string | null;
   isAuthenticated: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
-  registerClient: (data: RegisterClientData) => Promise<void>;
+  register: (data: RegisterUserData) => Promise<void>;
   initAuth: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   token: null,
-  clientId: null,
-  userId: null,
-  username: null,
+  displayName: null,
   isAuthenticated: false,
 
   /**
    * 用户登录
    */
   login: async (credentials: LoginCredentials) => {
-    try {
-      const response = await clientService.login(credentials);
-      const { token } = response;
+    const response = await clientService.login(credentials);
+    const { token, display_name } = response;
 
-      // 存储到 localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('clientId', credentials.client_id);
-      localStorage.setItem('username', credentials.username);
+    // 存储到 localStorage
+    localStorage.setItem('token', token);
+    localStorage.setItem('displayName', display_name);
 
-      // 更新状态
-      set({
-        token,
-        clientId: credentials.client_id,
-        username: credentials.username,
-        isAuthenticated: true,
-      });
+    // 更新状态
+    set({
+      token,
+      displayName: display_name,
+      isAuthenticated: true,
+    });
 
-      message.success('登录成功');
-    } catch (error) {
-      message.error('登录失败，请检查您的凭据');
-      throw error;
-    }
+    getMessageApi().success('登录成功');
   },
 
   /**
@@ -57,50 +46,37 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     // 清除 localStorage
     localStorage.removeItem('token');
-    localStorage.removeItem('clientId');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('username');
+    localStorage.removeItem('displayName');
 
     // 重置状态
     set({
       token: null,
-      clientId: null,
-      userId: null,
-      username: null,
+      displayName: null,
       isAuthenticated: false,
     });
 
-    message.info('已登出');
+    getMessageApi().info('已登出');
   },
 
   /**
-   * 注册新的公司/机构客户端
+   * 用户注册
    */
-  registerClient: async (data: RegisterClientData) => {
-    try {
-      const response = await clientService.register(data);
-      const { token, client_id, user_id } = response;
+  register: async (data: RegisterUserData) => {
+    const response = await clientService.register(data);
+    const { token } = response;
 
-      // 存储到 localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('clientId', client_id);
-      localStorage.setItem('userId', user_id);
-      localStorage.setItem('username', data.username);
+    // 存储到 localStorage
+    localStorage.setItem('token', token);
+    localStorage.setItem('displayName', data.display_name);
 
-      // 更新状态
-      set({
-        token,
-        clientId: client_id,
-        userId: user_id,
-        username: data.username,
-        isAuthenticated: true,
-      });
+    // 更新状态
+    set({
+      token,
+      displayName: data.display_name,
+      isAuthenticated: true,
+    });
 
-      message.success('注册成功');
-    } catch (error) {
-      message.error('注册失败，请重试');
-      throw error;
-    }
+    getMessageApi().success('注册成功');
   },
 
   /**
@@ -108,16 +84,12 @@ export const useAuthStore = create<AuthState>((set) => ({
    */
   initAuth: () => {
     const token = localStorage.getItem('token');
-    const clientId = localStorage.getItem('clientId');
-    const userId = localStorage.getItem('userId');
-    const username = localStorage.getItem('username');
+    const displayName = localStorage.getItem('displayName');
 
     if (token) {
       set({
         token,
-        clientId,
-        userId,
-        username,
+        displayName,
         isAuthenticated: true,
       });
     }
