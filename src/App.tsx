@@ -1,5 +1,8 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+// 从 Vite 环境变量获取基础路径，移除末尾的斜杠
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
 import { ConfigProvider, App as AntApp } from 'antd';
 import { greenTheme } from './theme';
 import { setMessageApi } from './api/client';
@@ -41,7 +44,7 @@ function AppContent() {
   }, [message, initAuth]);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
