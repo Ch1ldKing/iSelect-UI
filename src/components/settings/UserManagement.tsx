@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import { Button, Modal, Form, Input, message, Card } from 'antd';
 import { UserAddOutlined } from '@ant-design/icons';
 import { clientService } from '../../api/clientService';
-import { useAuthStore } from '../../store/authStore';
 import { validatePassword } from '../../utils/validators';
 
 const UserManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [clients, setClients] = useState<any[]>([]);
   const [form] = Form.useForm();
 
   const showModal = () => {

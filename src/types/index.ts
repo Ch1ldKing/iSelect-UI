@@ -3,6 +3,8 @@ export * from './auth';
 export * from './worker';
 export * from './task';
 export * from './file';
-export * from './common';
 export * from './node';
-export * from './api';
+
+// 导出 common 和 api，但重命名 ApiResponse 避免冲突
+export * from './common';
+export type { ApiResponse as ApiResponseV2 } from './api';

@@ -8,7 +8,6 @@ import {
   ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { useTaskStore } from '../../store/taskStore';
-import { taskService } from '../../api/taskService';
 import TaskInfo from '../../components/task/TaskInfo';
 import TaskProgress from '../../components/task/TaskProgress';
 import SubtaskTable from '../../components/task/SubtaskTable';

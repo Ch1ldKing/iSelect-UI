@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:en": "tsc -b && VITE_BASE_PATH=/en/iselect/ VITE_OUT_DIR=dist/en vite build",
+    "build:zh": "tsc -b && VITE_BASE_PATH=/zh-cn/iselect/ VITE_OUT_DIR=dist/zh-cn vite build",
+    "build:all": "pnpm run build:en && pnpm run build:zh",
     "lint": "eslint .",
     "preview": "vite preview"
   },

@@ -25,7 +25,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: 'dist',
+    outDir: process.env.VITE_OUT_DIR || 'dist',
     sourcemap: true,
     rollupOptions: {
       output: {
