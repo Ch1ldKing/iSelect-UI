@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { clientService } from '../api/clientService';
 import type { LoginCredentials, RegisterUserData } from '../api/clientService';
 import { getMessageApi } from '../api/client';
+import { tokenStorage } from '../utils/cookies';
 
 interface AuthState {
   token: string | null;
@@ -26,9 +27,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     const response = await clientService.login(credentials);
     const { token, display_name } = response;
 
-    // 存储到 localStorage
-    localStorage.setItem('token', token);
-    localStorage.setItem('displayName', display_name);
+    // 同时存储到 localStorage 和 Cookie（主站和 iSelect 共享）
+    tokenStorage.setToken(token, display_name);
 
     // 更新状态
     set({
@@ -44,9 +44,8 @@ export const useAuthStore = create<AuthState>((set) => ({
    * 用户登出
    */
   logout: () => {
-    // 清除 localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('displayName');
+    // 同时清除 localStorage 和 Cookie
+    tokenStorage.clear();
 
     // 重置状态
     set({
@@ -65,9 +64,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     const response = await clientService.register(data);
     const { token } = response;
 
-    // 存储到 localStorage
-    localStorage.setItem('token', token);
-    localStorage.setItem('displayName', data.display_name);
+    // 同时存储到 localStorage 和 Cookie（主站和 iSelect 共享）
+    tokenStorage.setToken(token, data.display_name);
 
     // 更新状态
     set({
@@ -80,11 +78,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   /**
-   * 初始化认证状态（从 localStorage 恢复）
+   * 初始化认证状态（优先从 Cookie 恢复，其次从 localStorage）
    */
   initAuth: () => {
-    const token = localStorage.getItem('token');
-    const displayName = localStorage.getItem('displayName');
+    const token = tokenStorage.getToken();
+    const displayName = tokenStorage.getDisplayName();
 
     if (token) {
       set({

@@ -1,6 +1,7 @@
 // API 客户端配置
 import axios from 'axios';
 import { message as antdMessage } from 'antd';
+import { getCookie } from '../utils/cookies';
 
 // 创建 Axios 实例
 export const apiClient = axios.create({
@@ -24,7 +25,8 @@ export const getMessageApi = () => getMessage();
 // 请求拦截器 - 添加 Authorization header
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    // 优先从 Cookie 获取 token（支持跨应用共享），其次从 localStorage
+    const token = getCookie('token') || localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -62,7 +64,10 @@ apiClient.interceptors.response.use(
           } else {
             // token 过期，清除认证信息并重定向
             localStorage.clear();
-            window.location.href = '/login';
+            // 同时清除 Cookie
+            document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.adbiza.com';
+            document.cookie = 'displayName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.adbiza.com';
+            window.location.href = '/iselect/login';
             message.error('登录已过期，请重新登录');
           }
           break;
