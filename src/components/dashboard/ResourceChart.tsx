@@ -52,9 +52,9 @@ const ResourceChart: React.FC<ResourceChartProps> = ({ data, loading = false }) 
             width={window.innerWidth < 768 ? 40 : 60}
           />
           <Tooltip
-            formatter={(value: number) => `${value.toFixed(1)}%`}
+            formatter={(value: number | undefined) => value != null ? `${value.toFixed(1)}%` : '-'}
             labelFormatter={(label) => {
-              const date = new Date(label);
+              const date = new Date(label as string);
               return date.toLocaleString('zh-CN');
             }}
           />

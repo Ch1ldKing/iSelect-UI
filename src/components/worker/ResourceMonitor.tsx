@@ -23,8 +23,8 @@ const ResourceMonitor: React.FC<ResourceMonitorProps> = ({ data }) => {
   const [resourceType, setResourceType] = useState<ResourceType>('all');
 
   // 格式化时间戳显示
-  const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp);
+  const formatTime = (timestamp: string | React.ReactNode) => {
+    const date = new Date(timestamp as string);
     return date.toLocaleTimeString('zh-CN', {
       hour: '2-digit',
       minute: '2-digit',
@@ -77,7 +77,7 @@ const ResourceMonitor: React.FC<ResourceMonitorProps> = ({ data }) => {
           />
           <Tooltip
             labelFormatter={formatTime}
-            formatter={(value: number) => `${value.toFixed(1)}%`}
+            formatter={(value: number | undefined) => value != null ? `${value.toFixed(1)}%` : '-'}
           />
           <Legend />
           {(resourceType === 'all' || resourceType === 'cpu') && (

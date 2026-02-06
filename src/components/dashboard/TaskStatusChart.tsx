@@ -57,7 +57,7 @@ const TaskStatusChart: React.FC<TaskStatusChartProps> = ({ data, loading = false
               />
             ))}
           </Pie>
-          <Tooltip formatter={(value: number) => `${value} 个任务`} />
+          <Tooltip formatter={(value: number | undefined) => value != null ? `${value} 个任务` : '-'} />
           <Legend wrapperStyle={{ fontSize: isMobile ? 11 : 14 }} />
         </PieChart>
       </ResponsiveContainer>
