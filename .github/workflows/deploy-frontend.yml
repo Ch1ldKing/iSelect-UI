@@ -19,22 +19,17 @@ jobs:
           node-version: 18
           cache: npm
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
       - name: Install dependencies
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
         run: |
-          pnpm install --frozen-lockfile
+          npm ci
 
       - name: Build
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
         run: |
-          pnpm run build
+          npm run build
           ls -la dist/
 
       - name: Prepare SSH key
